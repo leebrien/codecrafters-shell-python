@@ -60,7 +60,7 @@ def find_in_path(command):
     return None
 
 def type_of_command(command):
-    builtins = ["echo", "exit", "type"]
+    builtins = ["echo", "exit", "type", "pwd"]
     if command in builtins:
         return "{command} is a shell builtin"
     
