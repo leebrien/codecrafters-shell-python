@@ -1,4 +1,5 @@
 import sys
+import os
 
 # Build your own shell
 def main():
@@ -36,6 +37,15 @@ def type_of_command(command):
     if command not in bultins:
         return "{command}: not found"
     
+    # check if command is an executable in PATH
+    path_env = os.getenv("PATH")
+    if path_env:
+        paths = path_env.split(os.pathsep)
+        for path in paths:
+            full_path = os.path.join(path, command)
+            if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+                return "{command} is {full_path}".format(command=command, full_path=full_path)
+            
     return "{command} is a shell builtin"
     
 if __name__ == "__main__":
