@@ -5,6 +5,7 @@ def main():
     while True:
         # Prompt for user input
         sys.stdout.write("$ ")
+        sys.stdout.flush()
         command = input()
 
         # If input is exit
@@ -22,7 +23,7 @@ def main():
             cmd_to_check = command.strip()[5:]
             result = type_of_command(cmd_to_check)
             print(result.format(command=cmd_to_check))
-            break
+            continue
 
         else:
             print(f"{command}: command not found")
