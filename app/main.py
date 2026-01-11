@@ -34,8 +34,8 @@ def type_of_command(command):
     bultins = ["echo", "exit", "type"]
 
     # check if command is in bultins
-    if command not in bultins:
-        return "{command}: not found"
+    if command in bultins:
+        return "{command} is a shell builtin"
     
     # check if command is an executable in PATH
     path_env = os.getenv("PATH")
@@ -46,7 +46,7 @@ def type_of_command(command):
             if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
                 return "{command} is {full_path}".format(command=command, full_path=full_path)
             
-    return "{command} is a shell builtin"
+    return "{command}: not found"
     
 if __name__ == "__main__":
     main()
