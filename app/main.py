@@ -1,52 +1,69 @@
 import sys
 import os
+import subprocess
+import shlex
 
-# Build your own shell
 def main():
     while True:
-        # Prompt for user input
         sys.stdout.write("$ ")
         sys.stdout.flush()
-        command = input()
+        
+        command_line = sys.stdin.readline().strip()
 
-        # If input is exit
-        if command.strip().lower() == "exit":
-            break # This will exit the loop
-
-        # if input is echo, print the input back
-        elif command.strip().startswith("echo "):
-            echo_string = command.strip()[5:] # Since "echo " is 5 characters, we slice from index 5
-            print(echo_string)
+        # Handle empty input
+        if not command_line:
             continue
 
-        # if input is type, call type_of_command function
-        elif command.strip().lower().startswith("type "):
-            cmd_to_check = command.strip()[5:]
-            result = type_of_command(cmd_to_check)
-            print(result.format(command=cmd_to_check))
+        # Parsing the input
+        # shlex.split correctly handles quoted strings and escape characters
+        parts = shlex.split(command_line)
+        command = parts[0]
+        args = parts[1:]
+
+        # Exit command
+        if command == "exit":
+            break
+
+        # Echo command
+        elif command == "echo":
+            # Use " ".join to handle multiple arguments (ex. echo arg1 arg2)
+            print(" ".join(args))
+
+        # Type command
+        elif command == "type":
+            if args:
+                print(type_of_command(args[0]).format(command=args[0]))
             continue
 
+        # External programs
         else:
-            print(f"{command}: command not found")
+            full_path = find_in_path(command)
+            if full_path:
+                # Run the external program with arguments
+                # We pass the full parts list to ensure command and args stay synced
+                subprocess.run(parts)
+            else:
+                print(f"{command}: command not found")
 
-def type_of_command(command):
-    # bultins list
-    bultins = ["echo", "exit", "type"]
-
-    # check if command is in bultins
-    if command in bultins:
-        return "{command} is a shell builtin"
-    
-    # check if command is an executable in PATH
+def find_in_path(command):
     path_env = os.getenv("PATH")
     if path_env:
-        paths = path_env.split(os.pathsep)
-        for path in paths:
-            full_path = os.path.join(path, command)
+        for directory in path_env.split(os.pathsep):
+            full_path = os.path.join(directory, command)
             if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                return "{command} is {full_path}".format(command=command, full_path=full_path)
-            
-    return "{command}: not found"
+                return full_path
+    return None
+
+def type_of_command(command):
+    builtins = ["echo", "exit", "type"]
+    if command in builtins:
+        return "{command} is a shell builtin"
     
+    path = find_in_path(command)
+    if path:
+        return f"{{command}} is {path}"
+        
+    return "{command}: not found"
+
 if __name__ == "__main__":
     main()
