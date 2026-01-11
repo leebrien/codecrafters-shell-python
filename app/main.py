@@ -6,11 +6,12 @@ def main():
         # Prompt for user input
         sys.stdout.write("$ ")
         command = input()
-        print(f"{command}: command not found")
 
         # If input is exit
         if command.lower() == "exit":
             break # This will exit the loop
+        
+        print(f"{command}: command not found")
 
 if __name__ == "__main__":
     main()
