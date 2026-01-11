@@ -23,6 +23,11 @@ def main():
         # Exit command
         if command == "exit":
             break
+        
+        elif command == "pwd":
+            # This asks the OS kernel for the current working directory
+            print(os.getcwd())
+            pass
 
         # Echo command
         elif command == "echo":
