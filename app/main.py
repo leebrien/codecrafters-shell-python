@@ -40,6 +40,17 @@ def main():
                 print(type_of_command(args[0]).format(command=args[0]))
             continue
 
+        elif command == "cd":
+            if args:
+                try:
+                    os.chdir(args[0])
+                except FileNotFoundError:
+                    print(f"cd: {args[0]}: no such file or directory")
+                    
+            # cd with no arguments goes to the home directory
+            else:
+                os.chdir(os.path.expanduser("~"))
+
         # External programs
         else:
             full_path = find_in_path(command)
