@@ -14,7 +14,7 @@ def main():
             continue
         
         # If input is exit
-        if command.strip.lower() == "exit":
+        if command.strip().lower() == "exit":
             break # This will exit the loop
 
         print(f"{command}: command not found")
