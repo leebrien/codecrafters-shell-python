@@ -19,13 +19,19 @@ def main():
         # shlex.split correctly handles quoted strings and escape characters
         parts = shlex.split(command_line)
 
-        if '>' in parts:
-            redirect_index = parts.index('>')
+        if '>' in parts or '1>' in parts:
+            redirect_index = -1
+
+            if '>' in parts:
+                redirect_index = parts.index('>')
+            elif '1>' in parts:
+                redirect_index = parts.index('1>')
+                
             if redirect_index < len(parts) - 1:  # Make sure there's a filename after >
                 output_file = parts[redirect_index + 1]
                 command_parts = parts[:redirect_index]
                 redirect_output_to_file(output_file, " ".join(command_parts))
-                continue
+                pass
 
         command = parts[0]
         args = parts[1:]
