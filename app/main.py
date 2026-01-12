@@ -19,18 +19,23 @@ def main():
         # shlex.split correctly handles quoted strings and escape characters
         parts = shlex.split(command_line)
 
-        if '>' in parts or '1>' in parts:
+        if '>' in parts or '1>' in parts or '2>' in parts:
             redirect_index = -1
 
             if '>' in parts:
                 redirect_index = parts.index('>')
             elif '1>' in parts:
                 redirect_index = parts.index('1>')
+            elif '2>' in parts:
+                redirect_index = parts.index('2>')
                 
             if redirect_index < len(parts) - 1:  # Make sure there's a filename after >
                 output_file = parts[redirect_index + 1]
                 command_parts = parts[:redirect_index]
-                redirect_output_to_file(output_file, " ".join(command_parts))
+                if parts[redirect_index] == '2>':
+                    redirect_error_to_file(output_file, " ".join(command_parts))
+                elif parts[redirect_index] in ('>', '1>'):
+                    redirect_output_to_file(output_file, " ".join(command_parts))
                 continue
 
         command = parts[0]
@@ -53,7 +58,7 @@ def main():
         elif command == "pwd":
             # This asks the OS kernel for the current working directory
             print(os.getcwd())
-            pass
+            continue
         # Echo command
         elif command == "echo":
             # Use " ".join to handle multiple arguments (ex. echo arg1 arg2)
@@ -129,6 +134,16 @@ def redirect_output_to_file(file_path, command_line):
         with redirect_stdout(file):
             parts = shlex.split(command_line)
             subprocess.run(parts, stdout=file)
+
+def redirect_error_to_file(file_path, command_line):
+    # Create directory only if there's a directory path
+    dir_path = os.path.dirname(file_path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
+    
+    with open(file_path, 'w') as file:
+        parts = shlex.split(command_line)
+        subprocess.run(parts, stderr=file)
 
 if __name__ == "__main__":
     main()
