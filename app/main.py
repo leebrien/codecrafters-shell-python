@@ -31,7 +31,7 @@ def main():
                 output_file = parts[redirect_index + 1]
                 command_parts = parts[:redirect_index]
                 redirect_output_to_file(output_file, " ".join(command_parts))
-                pass
+                continue
 
         command = parts[0]
         args = parts[1:]
