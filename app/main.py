@@ -18,6 +18,13 @@ def main():
         # Parsing the string input into command and arguments
         # shlex.split correctly handles quoted strings and escape characters
         parts = shlex.split(command_line)
+
+        if len(parts) >= 3 and parts[-2] == '>':
+            output_file = parts[-1]
+            command_parts = parts[:-2]
+            redirect_output_to_file(output_file, " ".join(command_parts))
+            continue
+
         command = parts[0]
         args = parts[1:]
 
@@ -42,9 +49,6 @@ def main():
         # Echo command
         elif command == "echo":
             # Use " ".join to handle multiple arguments (ex. echo arg1 arg2)
-            if args and args[-2] == '>':
-                redirect_output_to_file(args[-1], " ".join(args[1:-2]))
-            else:
                 print(" ".join(args))
         # Cat command
         elif command == "cat":
@@ -108,10 +112,15 @@ def type_of_command(command):
     return "{command}: not found"
 
 def redirect_output_to_file(file_path, command_line):
+    # Create directory only if there's a directory path
+    dir_path = os.path.dirname(file_path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
+    
     with open(file_path, 'w') as file:
         with redirect_stdout(file):
             parts = shlex.split(command_line)
-            subprocess.run(parts)
+            subprocess.run(parts, stdout=file)
 
 if __name__ == "__main__":
     main()
