@@ -23,7 +23,7 @@ def main():
             output_file = parts[-1]
             command_parts = parts[:-2]
             redirect_output_to_file(output_file, " ".join(command_parts))
-            continue
+            pass
 
         command = parts[0]
         args = parts[1:]
