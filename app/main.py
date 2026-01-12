@@ -19,11 +19,13 @@ def main():
         # shlex.split correctly handles quoted strings and escape characters
         parts = shlex.split(command_line)
 
-        if len(parts) >= 3 and parts[-2] == '>':
-            output_file = parts[-1]
-            command_parts = parts[:-2]
-            redirect_output_to_file(output_file, " ".join(command_parts))
-            pass
+        if '>' in parts:
+            redirect_index = parts.index('>')
+            if redirect_index < len(parts) - 1:  # Make sure there's a filename after >
+                output_file = parts[redirect_index + 1]
+                command_parts = parts[:redirect_index]
+                redirect_output_to_file(output_file, " ".join(command_parts))
+                continue
 
         command = parts[0]
         args = parts[1:]
@@ -101,7 +103,7 @@ def find_in_path(command):
     return None
 
 def type_of_command(command):
-    builtins = ["echo", "exit", "type", "pwd"]
+    builtins = ["echo", "exit", "type", "pwd", "cat", "cd"]
     if command in builtins:
         return "{command} is a shell builtin"
     
