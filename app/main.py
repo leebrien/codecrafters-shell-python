@@ -117,7 +117,7 @@ FUNCTIONS
 '''
 
 def completer(text, state):
-    commands = []
+    commands = ["exit", "pwd", "echo", "cat", "type", "cd"]
     path_env = os.getenv("PATH")
     if path_env:
         for directory in path_env.split(os.pathsep):
