@@ -112,7 +112,6 @@ def main():
                 subprocess.run(parts)
             else:
                 print(f"{command}: command not found")
-
 '''
 FUNCTIONS
 '''
@@ -143,6 +142,16 @@ def setup_autocomplete():
         readline.parse_and_bind("tab: complete")
     
     readline.set_completer(completer)
+    readline.set_completion_display_matches_hook(display_matches)
+
+def display_matches(substitution, matches, longest_match_length):
+    print()
+    for i, match in enumerate(matches):
+        print(match, end='  ')  # Two spaces between matches
+        if (i + 1) % 3 == 0:
+            print()
+    print()
+    print("$ " + readline.get_line_buffer(), end='', flush=True)
     
 def find_in_path(command):
     path_env = os.getenv("PATH")
