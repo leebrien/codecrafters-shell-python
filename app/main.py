@@ -127,8 +127,13 @@ def completer(text, state):
                         commands.append(item)
             except FileNotFoundError:
                 continue
-    options = [cmd + " " for cmd in commands if cmd.startswith(text)]
-    if state < len(options):
+    
+    options = [cmd for cmd in commands if cmd.startswith(text)]
+    
+    # Add space only if there's exactly one match
+    if len(options) == 1 and state == 0:
+        return options[0] + " "
+    elif state < len(options):
         return options[state]
     else:
         return None
@@ -142,16 +147,6 @@ def setup_autocomplete():
         readline.parse_and_bind("tab: complete")
     
     readline.set_completer(completer)
-    readline.set_completion_display_matches_hook(display_matches)
-
-def display_matches(substitution, matches, longest_match_length):
-    print()
-    for i, match in enumerate(matches):
-        print(match, end='  ')  # Two spaces between matches
-        if (i + 1) % 3 == 0:
-            print()
-    print()
-    print("$ " + readline.get_line_buffer(), end='', flush=True)
     
 def find_in_path(command):
     path_env = os.getenv("PATH")
