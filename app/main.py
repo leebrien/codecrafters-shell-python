@@ -130,11 +130,12 @@ def completer(text, state):
     
     options = [cmd for cmd in commands if cmd.startswith(text)]
     
-    # Add space only if there's exactly one match
-    if len(options) == 1 and state == 0:
-        return options[0] + " "
-    elif state < len(options):
-        return options[state]
+    if state < len(options):
+        # Add space only if this is the only match
+        if len(options) == 1:
+            return options[state] + " "
+        else:
+            return options[state]
     else:
         return None
     
