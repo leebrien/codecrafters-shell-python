@@ -130,14 +130,20 @@ def completer(text, state):
     
     options = [cmd for cmd in commands if cmd.startswith(text)]
     
+    if state == 0 and len(options) == 1:
+        # Use a hook to insert space after completion
+        def insert_space_hook():
+            readline.insert_text(' ')
+            readline.redisplay()
+        
+        try:
+            readline.set_pre_input_hook(insert_space_hook)
+        except AttributeError:
+            pass
+    
     if state < len(options):
-        # Add space only if this is the only match
-        if len(options) == 1:
-            return options[state] + " "
-        else:
-            return options[state]
-    else:
-        return None
+        return options[state] + ' '
+    return None
     
 def setup_autocomplete():
     if 'libedit' in readline.__doc__:
