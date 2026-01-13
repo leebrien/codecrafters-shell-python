@@ -117,7 +117,7 @@ FUNCTIONS
 '''
 
 def completer(text, state):
-    commands = ["exit", "pwd", "echo", "cat", "type", "cd"]
+    commands = []
     path_env = os.getenv("PATH")
     if path_env:
         for directory in path_env.split(os.pathsep):
@@ -129,20 +129,14 @@ def completer(text, state):
                 continue
     
     options = [cmd for cmd in commands if cmd.startswith(text)]
-    
-    if state == 0 and len(options) == 1:
-        # Use a hook to insert space after completion
-        def insert_space_hook():
-            readline.insert_text(' ')
-            readline.redisplay()
-        
-        try:
-            readline.set_pre_input_hook(insert_space_hook)
-        except AttributeError:
-            pass
+    options = list(set(options))  # Remove duplicates
     
     if state < len(options):
-        return options[state] + ' '
+        # Only add space for single match
+        if len(options) == 1:
+            return options[state] + ' '
+        else:
+            return options[state]
     return None
     
 def setup_autocomplete():
