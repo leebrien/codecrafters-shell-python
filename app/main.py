@@ -6,6 +6,7 @@ import readline
 
 def main():
 
+    # Autocomplete setup
     setup_autocomplete()
 
     while True:
@@ -127,7 +128,7 @@ def completer(text, state):
                         commands.append(item)
             except FileNotFoundError:
                 continue
-    options = [cmd for cmd in commands if cmd.startswith(text)]
+    options = [cmd + " " for cmd in commands if cmd.startswith(text)]
     if state < len(options):
         return options[state]
     else:
