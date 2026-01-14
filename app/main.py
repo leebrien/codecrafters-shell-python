@@ -20,6 +20,10 @@ def main():
         if not command_line:
             continue
 
+        if '|' in command_line:
+            execute_pipeline(command_line)
+            continue
+
         # Parsing the string input into command and arguments
         # shlex.split correctly handles quoted strings and escape characters
         parts = shlex.split(command_line)
@@ -148,6 +152,28 @@ def setup_autocomplete():
         readline.parse_and_bind("tab: complete")
     
     readline.set_completer(completer)
+
+def execute_pipeline(command_line):
+    commands = [shlex.split(cmd.strip()) for cmd in command_line.split('|')]
+    num_commands = len(commands)
+
+    processes = []
+    for i in range(num_commands):
+        if i == 0:
+            # first command
+            proc = subprocess.Popen(commands[i], stdout=subprocess.PIPE)
+        elif i == num_commands - 1:
+            # last command
+            proc = subprocess.Popen(commands[i], stdin=processes[-1].stdout)
+        else:
+            # middle command
+            proc = subprocess.Popen(commands[i], stdin=processes[-1].stdout, stdout=subprocess.PIPE)
+        processes.append(proc)
+    # Close all stdout pipes in the parent process
+    for proc in processes[:-1]:
+        proc.stdout.close()
+    # Wait for the last process to complete
+    processes[-1].wait()
     
 def find_in_path(command):
     path_env = os.getenv("PATH")
