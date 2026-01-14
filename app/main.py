@@ -154,26 +154,78 @@ def setup_autocomplete():
     readline.set_completer(completer)
 
 def execute_pipeline(command_line):
-    commands = [shlex.split(cmd.strip()) for cmd in command_line.split('|')]
-    num_commands = len(commands)
-
+    """Execute a pipeline of commands connected by |"""
+    commands = command_line.split('|')
+    
+    if len(commands) < 2:
+        print("Pipeline requires at least 2 commands")
+        return
+    
     processes = []
-    for i in range(num_commands):
-        if i == 0:
-            # first command
-            proc = subprocess.Popen(commands[i], stdout=subprocess.PIPE)
-        elif i == num_commands - 1:
-            # last command
-            proc = subprocess.Popen(commands[i], stdin=processes[-1].stdout)
+    builtins = ["echo", "exit", "type", "pwd", "cd"]
+    
+    for i, cmd in enumerate(commands):
+        cmd = cmd.strip()
+        if not cmd:
+            continue
+            
+        parts = shlex.split(cmd)
+        command = parts[0]
+        args = parts[1:]
+        
+        # Determine stdin and stdout
+        stdin = processes[-1].stdout if i > 0 else None
+        stdout = subprocess.PIPE if i < len(commands) - 1 else None
+        
+        if command in builtins:
+            # Execute builtin and capture output
+            output = execute_builtin_capture(command, args, stdin)
+            
+            # Create a process that outputs the builtin result
+            if output is not None:
+                process = subprocess.Popen(
+                    ['echo', output],
+                    stdin=None,
+                    stdout=stdout,
+                    stderr=None
+                )
+            else:
+                # For builtins that don't output (like cd)
+                continue
         else:
-            # middle command
-            proc = subprocess.Popen(commands[i], stdin=processes[-1].stdout, stdout=subprocess.PIPE)
-        processes.append(proc)
-    # Close all stdout pipes in the parent process
-    for proc in processes[:-1]:
-        proc.stdout.close()
-    # Wait for the last process to complete
-    processes[-1].wait()
+            # External command
+            process = subprocess.Popen(
+                parts,
+                stdin=stdin,
+                stdout=stdout,
+                stderr=None
+            )
+        
+        processes.append(process)
+        
+        # Close previous stdout
+        if i > 0 and processes[-2].stdout:
+            processes[-2].stdout.close()
+    
+    # Wait for all
+    for process in processes:
+        process.wait()
+
+def execute_builtin_capture(command, args, stdin_pipe):
+    
+    # Execute built-in commands and ouput string
+
+    if command == "echo":
+        return " ".join(args)
+    elif command == "pwd":
+        return os.getcwd()
+    elif command == "type":
+        if args:
+            return type_of_command(args[0]).format(command=args[0])
+    elif command == "cd":
+        # cd doesn't output anything
+        return None
+    return None
     
 def find_in_path(command):
     path_env = os.getenv("PATH")
