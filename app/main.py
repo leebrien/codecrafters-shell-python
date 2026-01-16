@@ -8,6 +8,11 @@ def main():
 
     # Autocomplete setup
     setup_autocomplete()
+    string_history_file = os.path.expanduser("~/.simple_shell_history")
+    try:
+        readline.read_history_file(string_history_file)
+    except FileNotFoundError:
+        pass
 
     while True:
         
@@ -107,6 +112,11 @@ def main():
             else:
                 os.chdir(os.path.expanduser("~"))
 
+        elif command == "history":
+            # Print command history
+            for i in range(1, readline.get_current_history_length() + 1):
+                print(f"{i}  {readline.get_history_item(i)}")
+                
         # External programs
         else:
             full_path = find_in_path(command)
@@ -121,7 +131,7 @@ FUNCTIONS
 '''
 
 def completer(text, state):
-    commands = ["exit", "pwd", "echo", "cat", "type", "cd"]
+    commands = ["exit", "pwd", "echo", "cat", "type", "cd", "history"]
     path_env = os.getenv("PATH")
     if path_env:
         for directory in path_env.split(os.pathsep):
@@ -237,7 +247,7 @@ def find_in_path(command):
     return None
 
 def type_of_command(command):
-    builtins = ["echo", "exit", "type", "pwd", "cd"]
+    builtins = ["echo", "exit", "type", "pwd", "cd", "history"]
     if command in builtins:
         return "{command} is a shell builtin"
     
