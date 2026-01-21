@@ -8,11 +8,6 @@ def main():
 
     # Autocomplete setup
     setup_autocomplete()
-    string_history_file = os.path.expanduser("~/.simple_shell_history")
-    try:
-        readline.read_history_file(string_history_file)
-    except FileNotFoundError:
-        pass
 
     while True:
         
@@ -114,9 +109,15 @@ def main():
 
         elif command == "history":
             # Print command history
-            for i in range(1, readline.get_current_history_length() + 1):
-                print(f"{i}  {readline.get_history_item(i)}")
-                
+            
+            if args and args[0].isdigit():
+                n = int(args[0])
+                for i in range(1, min(n + 1, readline.get_current_history_length() + 1)):
+                    print(f"{i}  {readline.get_history_item(i)}")
+            else:
+                for i in range(1, readline.get_current_history_length() + 1):
+                    print(f"{i}  {readline.get_history_item(i)}")
+
         # External programs
         else:
             full_path = find_in_path(command)
