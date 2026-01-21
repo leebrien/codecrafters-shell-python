@@ -108,11 +108,11 @@ def main():
                 os.chdir(os.path.expanduser("~"))
 
         elif command == "history":
-            # Print command history
-            
             if args and args[0].isdigit():
                 n = int(args[0])
-                for i in range(1, min(n + 1, readline.get_current_history_length() + 1)):
+                total = readline.get_current_history_length()
+                start = max(1, total - n + 1)  # Start from (total - n + 1), but at least 1
+                for i in range(start, total + 1):
                     print(f"{i}  {readline.get_history_item(i)}")
             else:
                 for i in range(1, readline.get_current_history_length() + 1):
