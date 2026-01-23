@@ -9,6 +9,13 @@ def main():
     # Autocomplete setup
     setup_autocomplete()
 
+    # read history
+    histfile = os.path.join(os.path.expanduser("~"), ".pyshell_history")
+    try:
+        readline.read_history_file(histfile)
+    except FileNotFoundError:
+        pass
+    
     while True:
         
         try:
@@ -132,6 +139,14 @@ def main():
                         readline.write_history_file(hist_path)
                     except Exception as e:
                         print(f"history: could not write to {hist_path}: {e}")
+            elif args and args[0] == '-a':
+                # Append history items to path
+                if len(args) > 1:
+                    hist_path = args[1]
+                    try:
+                        readline.append_history_file(readline.get_current_history_length(), hist_path)
+                    except Exception as e:
+                        print(f"history: could not append to {hist_path}: {e}")
 
             # else print all history commands
             else:
