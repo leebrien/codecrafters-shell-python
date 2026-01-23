@@ -14,13 +14,16 @@ def main():
     setup_autocomplete()
 
     # Read history on startup
-    histfile = os.path.join(os.path.expanduser("~"), ".pyshell_history")
+    histfile = os.getenv(
+        "HISTFILE",
+        os.path.join(os.path.expanduser("~"), ".pyshell_history")
+    )
+
     try:
         readline.read_history_file(histfile)
     except FileNotFoundError:
         pass
 
-    # Everything read so far is already persisted
     last_history_length = readline.get_current_history_length()
 
     while True:
