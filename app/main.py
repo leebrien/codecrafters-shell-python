@@ -4,26 +4,23 @@ import subprocess
 import shlex
 import readline
 
-# Track how many history entries are already written
 last_history_length = 0
 
 def main():
     global last_history_length
 
-    # Autocomplete setup
     setup_autocomplete()
 
-    # Read history on startup
-    histfile = os.getenv(
-        "HISTFILE",
-        os.path.join(os.path.expanduser("~"), ".pyshell_history")
-    )
+    # Use HISTFILE only if provided
+    histfile = os.environ.get("HISTFILE")
 
-    try:
-        readline.read_history_file(histfile)
-    except FileNotFoundError:
-        pass
+    if histfile and os.path.exists(histfile):
+        try:
+            readline.read_history_file(histfile)
+        except (FileNotFoundError, OSError):
+            pass
 
+    # Everything read so far is already persisted
     last_history_length = readline.get_current_history_length()
 
     while True:
@@ -34,6 +31,8 @@ def main():
 
         if not command_line:
             continue
+
+        readline.add_history(command_line)
 
         if '|' in command_line:
             execute_pipeline(command_line)
@@ -111,7 +110,7 @@ def main():
                 try:
                     readline.read_history_file(args[1])
                     last_history_length = readline.get_current_history_length()
-                except FileNotFoundError:
+                except (FileNotFoundError, OSError):
                     print(f"history: {args[1]}: No such file or directory")
 
             elif args and args[0] == '-w' and len(args) > 1:
@@ -146,8 +145,8 @@ def main():
 
 def completer(text, state):
     commands = ["exit", "pwd", "echo", "cat", "type", "cd", "history"]
-    path_env = os.getenv("PATH")
 
+    path_env = os.getenv("PATH")
     if path_env:
         for directory in path_env.split(os.pathsep):
             try:
@@ -182,10 +181,7 @@ def execute_pipeline(command_line):
 
         if parts[0] in builtins:
             output = execute_builtin_capture(parts[0], parts[1:], stdin)
-            if output is not None:
-                process = subprocess.Popen(['echo', output], stdout=stdout)
-            else:
-                continue
+            process = subprocess.Popen(['echo', output], stdout=stdout)
         else:
             process = subprocess.Popen(parts, stdin=stdin, stdout=stdout)
 
@@ -204,7 +200,7 @@ def execute_builtin_capture(command, args, stdin):
         return os.getcwd()
     if command == "type" and args:
         return type_of_command(args[0]).format(command=args[0])
-    return None
+    return ""
 
 def find_in_path(command):
     for directory in os.getenv("PATH", "").split(os.pathsep):
