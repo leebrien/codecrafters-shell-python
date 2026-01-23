@@ -108,12 +108,32 @@ def main():
                 os.chdir(os.path.expanduser("~"))
 
         elif command == "history":
+
+            # if an argument is provided and it's a digit, show last n commands
             if args and args[0].isdigit():
                 n = int(args[0])
                 total = readline.get_current_history_length()
                 start = max(1, total - n + 1)  # Start from (total - n + 1), but at least 1
                 for i in range(start, total + 1):
                     print(f"{i}  {readline.get_history_item(i)}")
+            elif args and args[0] == '-r':
+                # Read history items from path
+                if len(args) > 1:
+                    hist_path = args[1]
+                    try:
+                        readline.read_history_file(hist_path)
+                    except FileNotFoundError:
+                        print(f"history: {hist_path}: No such file or directory")
+            elif args and args[0] == '-w':
+                # Write history items to path
+                if len(args) > 1:
+                    hist_path = args[1]
+                    try:
+                        readline.write_history_file(hist_path)
+                    except Exception as e:
+                        print(f"history: could not write to {hist_path}: {e}")
+
+            # else print all history commands
             else:
                 for i in range(1, readline.get_current_history_length() + 1):
                     print(f"{i}  {readline.get_history_item(i)}")
