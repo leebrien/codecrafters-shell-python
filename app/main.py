@@ -96,7 +96,6 @@ def main():
                 os.chdir(os.path.expanduser("~"))
 
         elif command == "history":
-            global last_history_length
 
             if args and args[0].isdigit():
                 n = int(args[0])
