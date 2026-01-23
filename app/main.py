@@ -98,12 +98,13 @@ def main():
                 os.chdir(os.path.expanduser("~"))
 
         elif command == "history":
-
+            
+            total_history = readline.get_current_history_length()
+            
             if args and args[0].isdigit():
                 n = int(args[0])
-                total = readline.get_current_history_length()
-                start = max(1, total - n + 1)
-                for i in range(start, total + 1):
+                start = max(1, total_history - n + 1)
+                for i in range(start, total_history + 1):
                     print(f"{i}  {readline.get_history_item(i)}")
 
             elif args and args[0] == '-r' and len(args) > 1:
@@ -133,8 +134,10 @@ def main():
                         print(f"history: could not append to {hist_path}: {e}")
 
             else:
-                for i in range(1, readline.get_current_history_length() + 1):
-                    print(f"{i}  {readline.get_history_item(i)}")
+                for i in range(1, total_history + 1):
+                    item = readline.get_history_item(i)
+                    if item:
+                        print(f"{i:d}  {item}")
 
         else:
             full_path = find_in_path(command)
