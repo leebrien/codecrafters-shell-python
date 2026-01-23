@@ -32,8 +32,6 @@ def main():
         if not command_line:
             continue
 
-        readline.add_history(command_line)
-
         if '|' in command_line:
             execute_pipeline(command_line)
             continue
