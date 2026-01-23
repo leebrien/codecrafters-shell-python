@@ -144,6 +144,13 @@ def main():
             else:
                 print(f"{command}: command not found")
 
+    # write history on exit
+    if histfile:
+        try:
+            readline.write_history_file(histfile)
+        except Exception:
+            pass
+
 def completer(text, state):
     commands = ["exit", "pwd", "echo", "cat", "type", "cd", "history"]
 
